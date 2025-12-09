@@ -158,9 +158,9 @@ const fr = {
   "cart.checkout.submit": "Valider la commande",
   "cart.checkout.successMessage":
     "Merci pour votre commande ! Nous revenons vers vous sous 24 heures avec les prochaines etapes.",
-  "cart.checkout.successTitle": "Paiement confirmé !",
+    "cart.checkout.successTitle": "Paiement confirme !",
   "cart.checkout.successBody":
-    "Votre commande est enregistrée. Un email de confirmation et les prochaines étapes arrivent sous 24h.",
+    "Votre commande est enregistree. La facture PDF est envoyee par email avec les prochaines etapes sous 24h.",
   "cart.payment.title": "Mode de paiement",
   "cart.payment.card": "Carte bancaire",
   "cart.payment.paypal": "PayPal",
@@ -434,9 +434,9 @@ const en: Record<TranslationKey, string> = {
   "cart.checkout.submit": "Confirm the order",
   "cart.checkout.successMessage":
     "Thank you for your order! We will contact you within 24 hours with next steps.",
-  "cart.checkout.successTitle": "Payment confirmed!",
+    "cart.checkout.successTitle": "Payment confirmed!",
   "cart.checkout.successBody":
-    "Your order is recorded. A confirmation email and next steps are on the way within 24 hours.",
+    "Your order is recorded. The PDF invoice is on its way by email with next steps within 24 hours.",
   "cart.payment.title": "Payment method",
   "cart.payment.card": "Card",
   "cart.payment.paypal": "PayPal",

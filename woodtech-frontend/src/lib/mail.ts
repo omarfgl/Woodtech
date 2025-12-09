@@ -40,3 +40,43 @@ export async function sendContactMessage(payload: ContactMailPayload) {
 
   return data;
 }
+
+export type InvoiceItemPayload = {
+  title: string;
+  qty: number;
+  price: number;
+  total?: number;
+};
+
+export type InvoiceMailPayload = {
+  email: string;
+  name?: string;
+  orderId?: string;
+  currency?: string;
+  total: number;
+  items: InvoiceItemPayload[];
+};
+
+// Envoie une facture PDF via le microservice mail.
+export async function sendInvoiceEmail(payload: InvoiceMailPayload) {
+  let response: Response;
+  try {
+    response = await fetch(`${MAIL_SERVICE_URL}/mail/invoice`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+  } catch (error) {
+    notifyServiceDown({ service: "mail" });
+    throw error;
+  }
+
+  const data = await response.json().catch(() => ({ success: false }));
+  if (!response.ok || data?.success === false) {
+    const message = data?.error?.message || "Unable to send invoice email.";
+    throw new Error(message);
+  }
+  return data;
+}

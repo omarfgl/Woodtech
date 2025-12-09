@@ -5,8 +5,10 @@ import { CheckCircle, MinusIcon, PlusIcon, TrashIcon } from "lucide-react";
 import { Catalogue, Orders } from "../lib/api";
 import { loadLocalProducts } from "../lib/catalogueLocal";
 import { useCart } from "../store/cart";
+import { useAuth } from "../store/auth";
 import type { Product } from "../types";
 import { useTranslate } from "@/lib/i18n";
+import { sendInvoiceEmail } from "@/lib/mail";
 import { Button } from "@/components/animate-ui/components/buttons/button";
 
 const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
@@ -15,6 +17,7 @@ const stripePromise = stripePublicKey ? loadStripe(stripePublicKey) : null;
 // Page panier : enrichit les IDs avec les fiches produits et simule une creation de commande.
 export default function CartPage() {
   const { items, removeItem, clear, setQuantity } = useCart();
+  const { user } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [status, setStatus] = useState<"idle" | "submitting" | "done">("idle");
   const [paymentMethod, setPaymentMethod] = useState<"card" | "stripe">("card");
@@ -92,7 +95,26 @@ export default function CartPage() {
         };
       }
 
+      const orderId = `INV-${Date.now()}`;
       await Orders.create("guest", items, paymentMethod, extraDetails);
+      // Envoi de la facture PDF si l'email client est connu.
+      if (user?.email) {
+        sendInvoiceEmail({
+          email: user.email,
+          name: user.name,
+          orderId,
+          currency: "EUR",
+          total,
+          items: enriched.map((line) => ({
+            title: line.title,
+            qty: line.qty,
+            price: line.price,
+            total: line.lineTotal
+          }))
+        }).catch((err) => {
+          console.warn("Failed to send invoice email", err);
+        });
+      }
       succeeded = true;
     } catch (err) {
       const message = err instanceof Error ? err.message : translate("cart.payment.error");

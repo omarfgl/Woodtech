@@ -21,7 +21,7 @@ if (config.smtp) {
 }
 
 // Envoi effectif d'un email : on ne gere qu'une destination unique pour l'instant.
-export async function sendMail({ subject, text, html, to }) {
+export async function sendMail({ subject, text, html, to, attachments }) {
   try {
     const recipients = to && to.length ? to : [config.mail.to];
     if (smtpTransport) {
@@ -31,6 +31,7 @@ export async function sendMail({ subject, text, html, to }) {
         subject,
         text,
         html,
+        attachments,
       });
       console.info("[mailer] SMTP send success", { to: recipients, subject });
       return result;
@@ -42,6 +43,7 @@ export async function sendMail({ subject, text, html, to }) {
         subject,
         text,
         html,
+        attachments,
       });
       console.info("[mailer] Resend primary send success", { to: recipients, subject });
       return result;
