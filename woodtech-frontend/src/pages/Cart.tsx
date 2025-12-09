@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { CardElement, Elements, useElements, useStripe } from "@stripe/react-stripe-js";
 import { loadStripe, type StripeElementsOptions } from "@stripe/stripe-js";
-import { MinusIcon, PlusIcon, TrashIcon } from "lucide-react";
+import { CheckCircle, MinusIcon, PlusIcon, TrashIcon } from "lucide-react";
 import { Catalogue, Orders } from "../lib/api";
 import { loadLocalProducts } from "../lib/catalogueLocal";
 import { useCart } from "../store/cart";
@@ -107,15 +107,30 @@ export default function CartPage() {
     }
   };
 
+  const showSuccess = status === "done";
+
   if (items.length === 0) {
     return (
       <section className="container py-16 text-center">
-        <h2 className="text-3xl font-semibold">
-          {translate("cart.empty.title")}
-        </h2>
-        <p className="mt-3 text-white/60">
-          {translate("cart.empty.description")}
-        </p>
+        {showSuccess && (
+          <div className="mx-auto mb-10 max-w-2xl rounded-3xl border border-emerald-400/20 bg-gradient-to-br from-emerald-900/60 via-emerald-800/40 to-brand-900/70 p-6 shadow-2xl shadow-emerald-900/40">
+            <div className="flex flex-col items-center gap-3 text-left sm:flex-row">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full border border-emerald-400/30 bg-emerald-500/15 text-emerald-200">
+                <CheckCircle className="h-6 w-6" />
+              </span>
+              <div className="space-y-2">
+                <h2 className="text-2xl font-semibold text-emerald-100">
+                  {translate("cart.checkout.successTitle")}
+                </h2>
+                <p className="text-sm text-emerald-50/80">
+                  {translate("cart.checkout.successBody")}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+        <h2 className="text-3xl font-semibold">{translate("cart.empty.title")}</h2>
+        <p className="mt-3 text-white/60">{translate("cart.empty.description")}</p>
         <Button as="a" href="/catalogue" variant="primary" size="md" className="mt-6">
           {translate("cart.empty.cta")}
         </Button>
@@ -293,6 +308,11 @@ export default function CartPage() {
             )}
           </div>
           {error && <p className="text-sm text-brand-200">{error}</p>}
+          {status === "done" && (
+            <div className="rounded-lg border border-emerald-400/25 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-50">
+              {translate("cart.checkout.successMessage")}
+            </div>
+          )}
         </div>
         <div className="flex flex-col items-end gap-3">
           <div className="text-2xl font-semibold text-brand-100">
