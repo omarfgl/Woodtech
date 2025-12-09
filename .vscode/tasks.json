@@ -1,0 +1,113 @@
+{
+  // Tâches VS Code pour lancer chaque service dans un terminal intégré distinct.
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "backend-mail: npm run dev",
+      "type": "shell",
+      "command": "npm run dev",
+      "options": {
+        "cwd": "${workspaceFolder}/woodtech-backend-mail"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "backend-auth: node server.js",
+      "type": "shell",
+      "command": "node server.js",
+      "options": {
+        "cwd": "${workspaceFolder}/woodtech-backend-auth"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "backend-catalogue: npm run dev",
+      "type": "shell",
+      "command": "npm run dev",
+      "options": {
+        "cwd": "${workspaceFolder}/woodtech-backend-catalogue"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "backend-cart: npm run dev",
+      "type": "shell",
+      "command": "npm run dev",
+      "options": {
+        "cwd": "${workspaceFolder}/woodtech-backend-cart"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "backend-admin: npm run dev",
+      "type": "shell",
+      "command": "npm run dev",
+      "options": {
+        "cwd": "${workspaceFolder}/woodtech-backend-admin"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "backend-ai-assistant: npm run dev",
+      "type": "shell",
+      "command": "npm run dev",
+      "options": {
+        "cwd": "${workspaceFolder}/woodtech-backend-ai-assistant"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "frontend: npm run dev",
+      "type": "shell",
+      "command": "npm run dev",
+      "options": {
+        "cwd": "${workspaceFolder}/woodtech-frontend"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "Lancer tous les services",
+      "type": "shell",
+      "command": "echo Lancement des services…",
+      "problemMatcher": [],
+      "dependsOn": [
+        "backend-mail: npm run dev",
+        "backend-auth: node server.js",
+        "backend-catalogue: npm run dev",
+        "backend-cart: npm run dev",
+        "backend-admin: npm run dev",
+        "backend-ai-assistant: npm run dev",
+        "frontend: npm run dev"
+      ],
+      "dependsOrder": "parallel"
+    }
+  ]
+}

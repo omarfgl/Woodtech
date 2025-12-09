@@ -1,0 +1,79 @@
+/* Fichier racine Tailwind : on importe les couches et on personnalise les variables de theme. */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Palette principale appliquee a tout le document via des variables CSS */
+  :root {
+    color-scheme: dark;
+    --bg: #0f0b08;
+    --fg: #f7f1eb;
+    --color-brand-50: 245 245 245;
+    --color-brand-100: 238 231 223;
+    --color-brand-200: 224 208 193;
+    --color-brand-300: 202 169 144;
+    --color-brand-400: 169 125 90;
+    --color-brand-500: 139 90 60;
+    --color-brand-600: 110 69 46;
+    --color-brand-700: 82 52 38;
+    --color-brand-800: 55 36 27;
+    --color-brand-900: 29 19 13;
+    --color-brand-950: 18 11 7;
+  }
+
+  :root[data-theme="frene"] {
+    color-scheme: dark;
+    --bg: #1f1510;
+    --fg: #fff7ef;
+    --color-brand-50: 254 249 243;
+    --color-brand-100: 248 238 221;
+    --color-brand-200: 241 221 194;
+    --color-brand-300: 231 197 161;
+    --color-brand-400: 216 170 129;
+    --color-brand-500: 193 141 100;
+    --color-brand-600: 165 115 79;
+    --color-brand-700: 133 90 61;
+    --color-brand-800: 100 66 45;
+    --color-brand-900: 64 41 28;
+    --color-brand-950: 38 22 15;
+  }
+  body {
+    /* Texture de fond rappelant l'univers boise */
+    @apply bg-[var(--bg)] text-[var(--fg)] antialiased;
+    background-image: url("/img/bg-pattern.svg");
+    background-size: cover;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+
+}
+
+@layer utilities {
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+}
+
+@layer components {
+  .ripple-spot {
+    animation: ripple 680ms ease-out forwards;
+    opacity: 0.45;
+    transform: scale(0);
+  }
+}
+
+@keyframes ripple {
+  from {
+    transform: scale(0);
+    opacity: 0.45;
+  }
+  to {
+    transform: scale(3.6);
+    opacity: 0;
+  }
+}

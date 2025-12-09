@@ -1,0 +1,98 @@
+[
+  {
+    "id": "p1",
+    "title": "Table en chene massif",
+    "description": "Plateau 4 cm, pietement en A, finition huile dure.",
+    "price": 2100,
+    "imageUrl": "https://images.unsplash.com/photo-1719899913493-1e508c3833e8?ixid=M3wxMjA3fDB8MXxhbGx8fHx8fHx8fHwxNzYxMjQwMTYyfA&ixlib=rb-4.1.0&auto=format&w=2400&q=80",
+    "category": "tables"
+  },
+  {
+    "id": "p2",
+    "title": "Porte interieure en noyer",
+    "description": "Assemblage traditionnel, charnieres invisibles.",
+    "price": 1150,
+    "imageUrl": "https://images.unsplash.com/photo-1591187883094-9862ad89e3f4?ixid=M3wxMjA3fDB8MXxhbGx8fHx8fHx8fHwxNzYxMjQwMzIxfA&ixlib=rb-4.1.0&auto=format&w=2400&q=80",
+    "category": "portes"
+  },
+  {
+    "id": "p3",
+    "title": "Armoire rustique",
+    "description": "Deux portes, etageres reglables, patine legere.",
+    "price": 2480,
+    "imageUrl": "https://images.unsplash.com/photo-1613367046430-fa9eab3014f1?ixid=M3wxMjA3fDB8MXxhbGx8fHx8fHx8fHwxNzYxMjQwNDIyfA&ixlib=rb-4.1.0&auto=format&w=2400&q=80",
+    "category": "armoires"
+  },
+  {
+    "id": "p4",
+    "title": "Cuisine en chene fume",
+    "description": "Meubles suspendus, plan massif et credence sur mesure.",
+    "price": 12800,
+    "imageUrl": "https://images.unsplash.com/photo-1758548157275-d939cf0f0e32?ixid=M3wxMjA3fDB8MXxhbGx8fHx8fHx8fHwxNzYxMjM4MTg0fA&ixlib=rb-4.1.0&auto=format&w=2400&q=80",
+    "category": "autres"
+  },
+  {
+    "id": "p5",
+    "title": "Escalier flottant en noyer",
+    "description": "Marches integrees, garde corps verre et structure cachee.",
+    "price": 9900,
+    "imageUrl": "https://images.unsplash.com/photo-1758548157499-c61b0730dc42?ixid=M3wxMjA3fDB8MXxhbGx8fHx8fHx8fHwxNzYxMjM4MjcwfA&ixlib=rb-4.1.0&auto=format&w=2400&q=80",
+    "category": "autres"
+  },
+  {
+    "id": "p6",
+    "title": "Bibliotheque murale XL",
+    "description": "Combinaison de niches lumineuses et rangements modulables.",
+    "price": 7400,
+    "imageUrl": "https://images.unsplash.com/photo-1473447216727-44efba8cf0e0?ixid=M3wxMjA3fDB8MXxhbGx8fHx8fHx8fHwxNzYxMjM4MjQyfA&ixlib=rb-4.1.0&auto=format&w=2400&q=80",
+    "category": "autres"
+  },
+  {
+    "id": "p7",
+    "title": "Suite parentale en frene",
+    "description": "Tete de lit, dressing integre et portes coulissantes sur rail.",
+    "price": 5600,
+    "imageUrl": "https://images.unsplash.com/photo-1723258345401-793598c38e10?ixid=M3wxMjA3fDB8MXxhbGx8fHx8fHx8fHwxNzYxMjM3NTAyfA&ixlib=rb-4.1.0&auto=format&w=2400&q=80",
+    "category": "autres"
+  },
+  {
+    "id": "p8",
+    "title": "Table reception douze couverts",
+    "description": "Plateau assemble a la main avec renforts invisibles et pieds acier.",
+    "price": 3100,
+    "imageUrl": "https://images.unsplash.com/photo-1745794621090-d856c53b0cc2?ixid=M3wxMjA3fDB8MXxhbGx8fHx8fHx8fHwxNzYxMjM3NTkxfA&ixlib=rb-4.1.0&auto=format&w=2400&q=80",
+    "category": "tables"
+  },
+  {
+    "id": "p9",
+    "title": "Showroom boutique artisanale",
+    "description": "Comptoir et etageres en chene brosse, eclairage integre.",
+    "price": 8400,
+    "imageUrl": "https://images.unsplash.com/photo-1760863264228-fa0792a2d894?ixid=M3wxMjA3fDB8MXxhbGx8fHx8fHx8fHwxNzYxMjM3Njk2fA&ixlib=rb-4.1.0&auto=format&w=2400&q=80",
+    "category": "autres"
+  },
+  {
+    "id": "p10",
+    "title": "Vestiaire entree sur mesure",
+    "description": "Banquette, penderie et casiers chaussures adaptes au volume.",
+    "price": 4300,
+    "imageUrl": "https://images.unsplash.com/photo-1516455207990-7a41ce80f7ee?ixid=M3wxMjA3fDB8MXxhbGx8fHx8fHx8fHwxNzYxMjM3OTQzfA&ixlib=rb-4.1.0&auto=format&w=2400&q=80",
+    "category": "autres"
+  },
+  {
+    "id": "p11",
+    "title": "Atelier creatif lumineux",
+    "description": "Plans de travail en hetre, modules roulants et panneaux pegboard.",
+    "price": 6200,
+    "imageUrl": "https://images.unsplash.com/photo-1657315138153-067917537537?ixid=M3wxMjA3fDB8MXxhbGx8fHx8fHx8fHwxNzYxMjM3OTY1fA&ixlib=rb-4.1.0&auto=format&w=2400&q=80",
+    "category": "autres"
+  },
+  {
+    "id": "p12",
+    "title": "Mur television boiserie",
+    "description": "Habillage acoustique, niches decoratives et passage cables cache.",
+    "price": 5100,
+    "imageUrl": "https://images.unsplash.com/photo-1755288556795-711618bfca4e?ixid=M3wxMjA3fDB8MXxhbGx8fHx8fHx8fHwxNzYxMjM4MDczfA&ixlib=rb-4.1.0&auto=format&w=2400&q=80",
+    "category": "autres"
+  }
+]

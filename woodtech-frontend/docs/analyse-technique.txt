@@ -1,0 +1,310 @@
+📘 Analyse technique – Projet WoodTech Frontend
+1. Contexte général
+
+Projet : WoodTech
+But : Développer le frontend du site web de M. Larmoire, artisan menuisier en Normandie.
+Technos : React + TypeScript + Vite + TailwindCSS
+Architecture prévue : intégration à un système microservices (CatalogueService, PanierService, AuthService, CommandeService).
+
+2. Stack et dépendances
+npm create vite@latest woodtech-frontend -- --template react-ts
+cd woodtech-frontend
+npm i react-router-dom axios zod
+npm i -D tailwindcss postcss autoprefixer
+npx tailwindcss init -p
+
+Tailwind config (tailwind.config.js)
+export default {
+  content: ["./index.html","./src/**/*.{ts,tsx}"],
+  theme: {
+    container: { center: true, padding: "1rem" },
+    extend: {
+      colors: {
+        brand: {
+          50:"#f5f5f5",100:"#eee7df",200:"#e0d0c1",300:"#caa990",
+          400:"#a97d5a",500:"#8b5a3c",600:"#6e452e",700:"#523426",
+          800:"#37241b",900:"#1d130d"
+        }
+      }
+    }
+  },
+  plugins: [],
+}
+
+Fichier global src/index.css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg: #0f0f0f;
+    --fg: #f5f5f5;
+  }
+  body {
+    @apply bg-[var(--bg)] text-[var(--fg)] antialiased;
+  }
+}
+
+3. Arborescence du projet
+woodtech-frontend/
+├─ public/
+│  ├─ img/
+│  │  ├─ table-chene.jpg
+│  │  ├─ porte-noyer.jpg
+│  │  └─ armoire-rustique.jpg
+│  ├─ logo-woodtech.svg
+│  └─ products.json
+├─ src/
+│  ├─ app/
+│  │  ├─ routes.tsx
+│  │  └─ providers.tsx
+│  ├─ components/
+│  │  ├─ ui/ (boutons, inputs…)
+│  │  ├─ Navbar.tsx
+│  │  ├─ Footer.tsx
+│  │  └─ ProductCard.tsx
+│  ├─ pages/
+│  │  ├─ Home.tsx
+│  │  ├─ Catalogue.tsx
+│  │  ├─ ProductDetail.tsx
+│  │  ├─ Cart.tsx
+│  │  └─ Contact.tsx
+│  ├─ store/
+│  │  └─ cart.tsx
+│  ├─ lib/
+│  │  ├─ api.ts
+│  │  └─ catalogueLocal.ts
+│  ├─ types.ts
+│  ├─ App.tsx
+│  └─ main.tsx
+├─ docs/
+│  └─ analyse-technique.txt
+├─ .env.example
+└─ vite.config.ts
+
+4. Typages et API
+src/types.ts
+export type Category = "tables"|"portes"|"armoires"|"autres";
+
+export type Product = {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  imageUrl: string;
+  category: Category;
+};
+
+export type CartItem = { productId: string; qty: number };
+
+export type Order = {
+  id: string;
+  items: CartItem[];
+  total: number;
+  createdAt: string;
+  status: "pending"|"paid"|"cancelled";
+};
+
+src/lib/api.ts
+import axios from "axios";
+export const api = axios.create({
+  baseURL: import.meta.env.VITE_API_GATEWAY_URL,
+  timeout: 15000,
+});
+
+export const Catalogue = {
+  list: () => api.get<Product[]>("/catalogue/products"),
+  one: (id: string) => api.get<Product>(`/catalogue/products/${id}`),
+  search: (q: string) => api.get<Product[]>("/catalogue/products", { params: { q } }),
+};
+
+export const CartApi = {
+  get: (userId: string) => api.get<CartItem[]>(`/cart/${userId}`),
+  add: (userId: string, productId: string, qty=1) => api.post(`/cart/${userId}/items`, { productId, qty }),
+  remove: (userId: string, productId: string) => api.delete(`/cart/${userId}/items/${productId}`),
+};
+
+export const Orders = {
+  create: (userId: string, items: CartItem[]) => api.post<Order>("/orders", { userId, items }),
+};
+
+.env.example
+VITE_API_GATEWAY_URL=http://localhost:8080
+
+5. Mock local (public/products.json)
+[
+  {
+    "id": "p1",
+    "title": "Table en chêne massif",
+    "description": "Plateau 4 cm, piètement en A, finition huile dure.",
+    "price": 1299,
+    "imageUrl": "/img/table-chene.jpg",
+    "category": "tables"
+  },
+  {
+    "id": "p2",
+    "title": "Porte intérieure en noyer",
+    "description": "Assemblage traditionnel, charnières invisibles.",
+    "price": 790,
+    "imageUrl": "/img/porte-noyer.jpg",
+    "category": "portes"
+  },
+  {
+    "id": "p3",
+    "title": "Armoire rustique",
+    "description": "Deux portes, étagères réglables, patine légère.",
+    "price": 1590,
+    "imageUrl": "/img/armoire-rustique.jpg",
+    "category": "armoires"
+  }
+]
+
+6. Fichier src/lib/catalogueLocal.ts
+import type { Product } from "../types";
+export async function loadLocalProducts(): Promise<Product[]> {
+  const res = await fetch("/products.json");
+  return res.json();
+}
+
+7. Pages principales
+src/pages/Home.tsx
+export default function Home() {
+  return (
+    <section className="container py-10">
+      <div className="grid md:grid-cols-2 gap-8 items-center">
+        <div>
+          <h1 className="text-4xl md:text-5xl font-bold leading-tight">
+            Meubles sur mesure en bois massif
+          </h1>
+          <p className="mt-4 text-white/80">
+            Atelier en Normandie: tables, portes, armoires, frises et sculptures.
+          </p>
+          <div className="mt-6 flex gap-3">
+            <a href="/catalogue" className="px-5 py-2 rounded-lg bg-brand-500 hover:bg-brand-400">
+              Voir le catalogue
+            </a>
+            <a href="/contact" className="px-5 py-2 rounded-lg border border-white/20">
+              Demander un devis
+            </a>
+          </div>
+        </div>
+        <img src="/hero.jpg" alt="" className="rounded-2xl border border-white/10" />
+      </div>
+    </section>
+  );
+}
+
+8. Exemple Catalogue (EF1 + EF10)
+import { useEffect, useState } from "react";
+import { Catalogue } from "../lib/api";
+import { loadLocalProducts } from "../lib/catalogueLocal";
+import type { Product } from "../types";
+import ProductCard from "../components/ProductCard";
+
+export default function CataloguePage() {
+  const [items, setItems] = useState<Product[]>([]);
+  const [q, setQ] = useState("");
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data } = await Catalogue.list();
+        setItems(data);
+      } catch {
+        setItems(await loadLocalProducts());
+      }
+    })();
+  }, []);
+
+  const filtered = items.filter(p =>
+    [p.title, p.description, p.category].join(" ").toLowerCase().includes(q.toLowerCase())
+  );
+
+  return (
+    <section className="container py-10">
+      <div className="flex items-center justify-between gap-3 mb-6">
+        <h2 className="text-2xl font-semibold">Réalisations</h2>
+        <input
+          value={q} onChange={e=>setQ(e.target.value)}
+          placeholder="Rechercher (EF10)"
+          className="px-3 py-2 rounded-lg bg-white/5 border border-white/10"
+        />
+      </div>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filtered.map(p => <ProductCard key={p.id} p={p} />)}
+      </div>
+    </section>
+  );
+}
+
+9. Structure des composants
+Navbar (src/components/Navbar.tsx)
+import { NavLink, Link } from "react-router-dom";
+
+export default function Navbar() {
+  return (
+    <header className="sticky top-0 z-50 bg-brand-900/80 backdrop-blur border-b border-white/10">
+      <div className="container flex h-14 items-center justify-between">
+        <Link to="/" className="flex items-center gap-2">
+          <img src="/logo-woodtech.svg" alt="WoodTech" className="h-7 w-7" />
+          <span className="font-semibold tracking-wide">WoodTech</span>
+        </Link>
+        <nav className="flex items-center gap-6 text-sm">
+          <NavLink to="/catalogue" className="hover:text-brand-200">Réalisations</NavLink>
+          <NavLink to="/panier" className="hover:text-brand-200">Panier</NavLink>
+          <NavLink to="/contact" className="hover:text-brand-200">Contact</NavLink>
+        </nav>
+      </div>
+    </header>
+  );
+}
+
+ProductCard (src/components/ProductCard.tsx)
+import { Product } from "../types";
+import { Link } from "react-router-dom";
+
+export default function ProductCard({ p }: { p: Product }) {
+  return (
+    <article className="group rounded-2xl overflow-hidden bg-brand-800 border border-white/10">
+      <Link to={`/produit/${p.id}`} className="block">
+        <img src={p.imageUrl} alt={p.title} className="aspect-[4/3] w-full object-cover" />
+        <div className="p-4">
+          <h3 className="text-lg font-semibold">{p.title}</h3>
+          <p className="text-sm text-white/70 line-clamp-2">{p.description}</p>
+          <div className="mt-3 text-brand-100 font-medium">{p.price.toFixed(2)} €</div>
+        </div>
+      </Link>
+    </article>
+  );
+}
+
+10. Commandes utiles
+npm run dev       # lancement local
+npm run build     # build production
+npm run preview   # test du build
+
+11. Points de conformité à l’analyse des besoins
+ID	Fonction	Fait dans le front
+EF1	Consulter le catalogue	CataloguePage
+EF2	Créer un produit	(à venir dans Admin)
+EF3	Modifier un produit	(à venir dans Admin)
+EF4	Supprimer un produit	(à venir dans Admin)
+EF5	Ajouter au panier	ProductDetail
+EF6	Voir le panier	CartPage
+EF7	Commander	Checkout simulation
+EF8	Authentification	à venir
+EF9	Formulaire de contact	ContactPage
+EF10	Rechercher / Filtrer	Champ de recherche catalogue
+EF11	Historique commandes	futur Admin
+12. Bonnes pratiques
+
+Auto Layout Figma → Flex / Grid Tailwind
+
+H1-H2-H3 hiérarchisés
+
+Images compressées ≤1600px
+
+Composants réutilisables (UI/button, input, card)
+
+Responsive testé sur 375px et 1440px

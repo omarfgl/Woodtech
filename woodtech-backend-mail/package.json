@@ -1,0 +1,27 @@
+{
+  "name": "woodtech-backend-mail",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Mail microservice for WoodTech contact and quote forms",
+  "main": "server.js",
+  "scripts": {
+    "dev": "nodemon --watch src --exec \"node src/server.js\"",
+    "start": "node src/server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.19.2",
+    "helmet": "^7.2.0",
+    "morgan": "^1.10.0",
+    "resend": "^6.4.2",
+    "nodemailer": "^6.9.13",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
+  }
+}
