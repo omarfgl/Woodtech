@@ -1,4 +1,5 @@
 const { Router } = require('express');
+// Importation des fonctions du controller des commandes.
 const {
   listOrders,
   getOrder,
@@ -8,7 +9,7 @@ const {
 
 // Routes REST dediees a la gestion des commandes.
 const router = Router();
-
+// Liste toutes les commandes
 router.get('/', listOrders);
 router.get('/:id', getOrder);
 router.post('/', createOrder);
