@@ -30,7 +30,7 @@ const fr = {
   "footer.hoursTitle": "Horaires atelier",
   "footer.hoursWeek": "Lundi - Vendredi : 9h00 - 18h30",
   "footer.hoursWeekend": "Samedi : sur rendez-vous.",
-  "footer.copy": "(c) {year} WoodTech - Omar Filali, Ousmane Tall. Tous droits reserves.",
+  "footer.copy": "(c) {year} WoodTech - Omar Filali. Tous droits reserves.",
 
   "home.hero.tagline": "Atelier WoodTech",
   "home.hero.title": "Meubles en bois massif",
@@ -306,7 +306,7 @@ const en: Record<TranslationKey, string> = {
   "footer.hoursWeek": "Monday - Friday: 9:00 AM - 6:30 PM",
   "footer.hoursWeekend": "Saturday: by appointment.",
   "footer.copy":
-    "(c) {year} WoodTech - Omar Filali, Ousmane Tall. All rights reserved.",
+    "(c) {year} WoodTech - Omar Filali. All rights reserved.",
 
   "home.hero.tagline": "WoodTech workshop",
   "home.hero.title": "Solid wood furniture",
