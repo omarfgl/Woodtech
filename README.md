@@ -243,19 +243,6 @@ WoodTech/
   figma/                          Design and visual assets
 ```
 
-## Publishing to GitHub
-
-Before pushing, make sure real secrets are not staged:
-
-```bash
-git status
-git add README.md
-git commit -m "docs: add project README"
-git push
-```
-
-If any `.env` file or real credential appears in `git status`, remove it from the commit before pushing.
-
 ## License
 
 This project is licensed under the MIT License.
