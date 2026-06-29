@@ -1,8 +1,26 @@
+import axios from "axios";
 import request from "supertest";
-import { describe, expect, test } from "vitest";
+import { beforeEach, describe, expect, test, vi, type MockedFunction } from "vitest";
 import { z } from "zod";
 import app from "../src/app";
+import PendingVerification from "../src/modules/auth/pendingVerification.model";
 import User from "../src/modules/user/user.model";
+
+vi.mock("axios", () => ({
+  default: {
+    post: vi.fn()
+  }
+}));
+
+const axiosPostMock = axios.post as MockedFunction<typeof axios.post>;
+
+const pendingSuccessSchema = z.object({
+  success: z.literal(true),
+  data: z.object({
+    status: z.literal("pending_verification"),
+    email: z.string().email()
+  })
+});
 
 const authSuccessSchema = z.object({
   success: z.literal(true),
@@ -12,7 +30,8 @@ const authSuccessSchema = z.object({
       email: z.string().email(),
       firstName: z.string().optional(),
       lastName: z.string().optional(),
-      role: z.enum(["user", "admin"])
+      role: z.enum(["user", "admin"]),
+      emailVerified: z.boolean().optional()
     }),
     tokens: z.object({
       accessToken: z.string(),
@@ -36,7 +55,8 @@ const userSuccessSchema = z.object({
     email: z.string().email(),
     firstName: z.string().optional(),
     lastName: z.string().optional(),
-    role: z.enum(["user", "admin"])
+    role: z.enum(["user", "admin"]),
+    emailVerified: z.boolean().optional()
   })
 });
 
@@ -54,26 +74,122 @@ const testUser = {
   lastName: "Doe"
 };
 
-describe("Auth API", () => {
-  test("register should create a user and issue tokens", async () => {
-    const response = await request(app).post("/auth/register").send(testUser);
+type VerificationMailPayload = {
+  email: string;
+  name?: string;
+  verificationUrl: string;
+  expiresInHours?: number;
+};
 
-    expect(response.status).toBe(201);
-    const body = authSuccessSchema.parse(response.body);
+const latestVerificationPayload = () => {
+  const payload = axiosPostMock.mock.calls.at(-1)?.[1] as VerificationMailPayload | undefined;
+  if (!payload) {
+    throw new Error("No verification email payload was sent");
+  }
+  return payload;
+};
+
+const registerPending = async (overrides: Partial<typeof testUser> = {}) => {
+  const payload = { ...testUser, ...overrides };
+  const response = await request(app).post("/auth/register").send(payload);
+  expect(response.status).toBe(202);
+  return {
+    body: pendingSuccessSchema.parse(response.body),
+    email: payload.email.toLowerCase()
+  };
+};
+
+const registerAndVerify = async (overrides: Partial<typeof testUser> = {}) => {
+  const { email } = await registerPending(overrides);
+  const verificationPayload = latestVerificationPayload();
+  const verificationUrl = new URL(verificationPayload.verificationUrl);
+  const token = verificationUrl.searchParams.get("token");
+
+  expect(verificationUrl.pathname).toBe("/verify-email");
+  expect(verificationUrl.searchParams.get("email")).toBe(email);
+  expect(token).toMatch(/^[a-f0-9]{64}$/);
+
+  const verifyResponse = await request(app).post("/auth/verify-email").send({ email, token });
+  expect(verifyResponse.status).toBe(200);
+  return authSuccessSchema.parse(verifyResponse.body);
+};
+
+beforeEach(() => {
+  axiosPostMock.mockReset();
+  axiosPostMock.mockResolvedValue({ data: { success: true } });
+});
+
+describe("Auth API", () => {
+  test("register should create a pending verification and send a verification link", async () => {
+    const { body, email } = await registerPending();
+
+    expect(body.data).toMatchObject({
+      status: "pending_verification",
+      email
+    });
+
+    const userInDb = await User.findOne({ email });
+    expect(userInDb).toBeNull();
+
+    const pending = await PendingVerification.findOne({ email });
+    expect(pending).not.toBeNull();
+    expect(pending?.tokenHash).toMatch(/^[a-f0-9]{64}$/);
+
+    const verificationPayload = latestVerificationPayload();
+    expect(verificationPayload).toMatchObject({
+      email,
+      name: testUser.firstName,
+      expiresInHours: 24
+    });
+    expect(verificationPayload.verificationUrl).toContain("/verify-email?");
+  });
+
+  test("login should return 401 while email verification is pending", async () => {
+    await registerPending();
+
+    const response = await request(app)
+      .post("/auth/login")
+      .send({ email: testUser.email, password: testUser.password });
+
+    expect(response.status).toBe(401);
+    const body = errorResponseSchema.parse(response.body);
+    expect(body.error.message).toMatch(/email not verified/i);
+  });
+
+  test("verify-email should create a user and issue tokens for a valid link token", async () => {
+    const body = await registerAndVerify();
+
     expect(body.data.user).toMatchObject({
       email: testUser.email.toLowerCase(),
       firstName: testUser.firstName,
       lastName: testUser.lastName,
-      role: "user"
+      role: "user",
+      emailVerified: true
     });
-    expect(response.headers["set-cookie"]).toBeDefined();
+    expect(body.data.tokens.accessToken).toBeDefined();
+    expect(body.data.tokens.refreshToken).toBeDefined();
 
     const userInDb = await User.findOne({ email: testUser.email.toLowerCase() });
-    expect(userInDb).not.toBeNull();
+    expect(userInDb?.verifiedAt).toBeInstanceOf(Date);
+
+    const pending = await PendingVerification.findOne({ email: testUser.email.toLowerCase() });
+    expect(pending).toBeNull();
   });
 
-  test("login should return tokens for valid credentials", async () => {
-    await request(app).post("/auth/register").send(testUser);
+  test("verify-email should reject an invalid link token", async () => {
+    const { email } = await registerPending();
+
+    const response = await request(app)
+      .post("/auth/verify-email")
+      .send({ email, token: "0".repeat(64) });
+
+    expect(response.status).toBe(401);
+    const body = errorResponseSchema.parse(response.body);
+    expect(body.error.message).toMatch(/invalid verification link/i);
+  });
+
+  test("login should return tokens for valid credentials after verification", async () => {
+    await registerAndVerify();
 
     const response = await request(app)
       .post("/auth/login")
@@ -86,7 +202,7 @@ describe("Auth API", () => {
   });
 
   test("login should return 401 for wrong password", async () => {
-    await request(app).post("/auth/register").send(testUser);
+    await registerAndVerify();
 
     const response = await request(app)
       .post("/auth/login")
@@ -98,8 +214,7 @@ describe("Auth API", () => {
   });
 
   test("me endpoint should return user profile with valid access token", async () => {
-    const registerResponse = await request(app).post("/auth/register").send(testUser);
-    const registerBody = authSuccessSchema.parse(registerResponse.body);
+    const registerBody = await registerAndVerify();
     const accessToken = registerBody.data.tokens.accessToken;
 
     const response = await request(app)
@@ -112,20 +227,10 @@ describe("Auth API", () => {
   });
 
   test("refresh should issue new tokens when provided a valid refresh token", async () => {
-    const registerResponse = await request(app).post("/auth/register").send(testUser);
-    const registerBody = authSuccessSchema.parse(registerResponse.body);
+    const registerBody = await registerAndVerify();
     const refreshToken = registerBody.data.tokens.refreshToken;
-    const setCookieHeader = registerResponse.headers["set-cookie"];
-    const cookies: string[] = Array.isArray(setCookieHeader)
-      ? setCookieHeader
-      : setCookieHeader
-        ? [setCookieHeader]
-        : [];
 
-    const response = await request(app)
-      .post("/auth/refresh")
-      .set("Cookie", cookies)
-      .send({ refreshToken });
+    const response = await request(app).post("/auth/refresh").send({ refreshToken });
 
     expect(response.status).toBe(200);
     const body = tokenSuccessSchema.parse(response.body);
@@ -143,18 +248,10 @@ describe("Auth API", () => {
   });
 
   test("logout should clear the refresh token cookie", async () => {
-    const registerResponse = await request(app).post("/auth/register").send(testUser);
-    const setCookieHeader = registerResponse.headers["set-cookie"];
-    const cookies: string[] = Array.isArray(setCookieHeader)
-      ? setCookieHeader
-      : setCookieHeader
-        ? [setCookieHeader]
-        : [];
+    const registerBody = await registerAndVerify();
+    const refreshToken = registerBody.data.tokens.refreshToken;
 
-    const response = await request(app)
-      .post("/auth/logout")
-      .set("Cookie", cookies)
-      .send();
+    const response = await request(app).post("/auth/logout").send({ refreshToken });
 
     expect(response.status).toBe(204);
     const clearedHeader = response.headers["set-cookie"];

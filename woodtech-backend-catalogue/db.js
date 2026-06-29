@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 // URI de secours afin d'eviter les plantages en local si la variable d'environnement n'est pas definie.
 const DEFAULT_URI =
-  'mongodb+srv://woodtech:woodtech123@cluster0.g0aws.mongodb.net/woodtech?retryWrites=true&w=majority&appName=Cluster0';
+  'mongodb://localhost:27017/woodtech';
 
 // Cette fonction etablit une connexion MongoDB partagee pour tout le service.
 const connectDB = async () => {

@@ -11,6 +11,7 @@ const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET 
 const ACCESS_TOKEN_TTL = process.env.ACCESS_TOKEN_TTL || process.env.JWT_EXPIRES_IN || '15m';
 const REFRESH_TOKEN_TTL = process.env.REFRESH_TOKEN_TTL || '7d';
 const MAIL_SERVICE_URL = process.env.MAIL_SERVICE_URL || 'http://localhost:4600';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 const VERIFICATION_TTL_MS = 1000 * 60 * 60 * 24; // 24h
 
 // Reponse JSON standardisee en cas de reussite.
@@ -29,11 +30,24 @@ const issueTokens = (userId) => ({
   refreshToken: jwt.sign({ sub: userId, type: 'refresh' }, REFRESH_SECRET, { expiresIn: REFRESH_TOKEN_TTL }),
 });
 
-const sendVerificationEmail = async (email, firstName, code) => {
-  await axios.post(`${MAIL_SERVICE_URL}/mail/verification`, { email, name: firstName, code }, { timeout: 10000 });
+const hashToken = (token) => crypto.createHash('sha256').update(token).digest('hex');
+
+const buildVerificationUrl = (email, token) => {
+  const url = new URL('/verify-email', FRONTEND_URL);
+  url.searchParams.set('email', email);
+  url.searchParams.set('token', token);
+  return url.toString();
 };
 
-const generateCode = () => crypto.randomInt(100000, 999999).toString();
+const sendVerificationEmail = async (email, firstName, verificationUrl) => {
+  await axios.post(
+    `${MAIL_SERVICE_URL}/mail/verification`,
+    { email, name: firstName, verificationUrl, expiresInHours: 24 },
+    { timeout: 10000 },
+  );
+};
+
+const generateVerificationToken = () => crypto.randomBytes(32).toString('hex');
 
 // On retire les champs sensibles (mot de passe, etc.) avant de renvoyer l'utilisateur cote client.
 const sanitizeUser = (user) => ({
@@ -81,7 +95,7 @@ const register = async (req, res, next) => {
 
     await PendingVerification.deleteOne({ email });
 
-    const code = generateCode();
+    const verificationToken = generateVerificationToken();
     const expiresAt = new Date(Date.now() + VERIFICATION_TTL_MS);
 
     await PendingVerification.create({
@@ -89,11 +103,11 @@ const register = async (req, res, next) => {
       password,
       firstName,
       lastName,
-      code,
+      tokenHash: hashToken(verificationToken),
       expiresAt,
     });
 
-    await sendVerificationEmail(email, firstName, code);
+    await sendVerificationEmail(email, firstName, buildVerificationUrl(email, verificationToken));
 
     return success(res, { status: 'pending_verification', email }, 202);
   } catch (error) {
@@ -185,24 +199,24 @@ const refresh = async (req, res) => {
 // Le logout cote API est stateless : on repond simplement positivement.
 const logout = async (_req, res) => success(res, { message: 'Logged out.' });
 
-// Vérifie un code et crée le compte.
+// Verifie un lien et cree le compte.
 const verifyEmail = async (req, res, next) => {
   try {
-    const { email, code } = req.body || {};
-    if (!email || !code) {
-      return failure(res, 400, 'Email and code are required.');
+    const { email, token } = req.body || {};
+    if (!email || !token) {
+      return failure(res, 400, 'Email and token are required.');
     }
 
     const pending = await PendingVerification.findOne({ email });
     if (!pending) {
       return failure(res, 400, 'Verification not requested.');
     }
-    if (pending.code !== code) {
-      return failure(res, 400, 'Invalid verification code.');
+    if (pending.tokenHash !== hashToken(token)) {
+      return failure(res, 400, 'Invalid verification link.');
     }
     if (pending.expiresAt.getTime() < Date.now()) {
       await PendingVerification.deleteOne({ _id: pending._id });
-      return failure(res, 400, 'Verification code expired.');
+      return failure(res, 400, 'Verification link expired.');
     }
 
     const existingUser = await User.findOne({ email });

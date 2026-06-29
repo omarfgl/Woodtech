@@ -3,7 +3,7 @@ import { z } from "zod";
 const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[^\s]{8,}$/;
 
 export const registerSchema = z.object({
-  email: z.string().email(),
+  email: z.string().trim().email(),
   password: z
     .string()
     .min(8)
@@ -13,7 +13,7 @@ export const registerSchema = z.object({
 });
 
 export const loginSchema = z.object({
-  email: z.string().email(),
+  email: z.string().trim().email(),
   password: z.string().min(8)
 });
 
@@ -22,8 +22,8 @@ export const refreshSchema = z.object({
 });
 
 export const verifyEmailSchema = z.object({
-  email: z.string().email(),
-  code: z.string().length(6)
+  email: z.string().trim().email(),
+  token: z.string().regex(/^[a-f0-9]{64}$/)
 });
 
 export type RegisterInput = z.infer<typeof registerSchema>;

@@ -6,7 +6,7 @@ export interface PendingVerificationDocument extends Document {
   passwordHash: string;
   firstName?: string;
   lastName?: string;
-  code: string;
+  tokenHash: string;
   expiresAt: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -35,7 +35,7 @@ const pendingVerificationSchema = new Schema<PendingVerificationDocument, Pendin
       type: String,
       trim: true
     },
-    code: {
+    tokenHash: {
       type: String,
       required: true
     },

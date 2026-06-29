@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 // Fallback URI so the service can run locally without manual configuration.
 const DEFAULT_URI =
-  'mongodb+srv://woodtech:woodtech123@cluster0.g0aws.mongodb.net/woodtech?retryWrites=true&w=majority&appName=Cluster0';
+  'mongodb://localhost:27017/woodtech';
 
 // Shared Mongo connection for the cart service.
 const connectDB = async () => {

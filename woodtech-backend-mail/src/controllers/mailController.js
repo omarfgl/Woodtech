@@ -41,7 +41,8 @@ const contactSchema = z
 const verificationSchema = z.object({
   email: z.string().email(),
   name: z.string().max(120).optional(),
-  code: z.string().length(6)
+  verificationUrl: z.string().url(),
+  expiresInHours: z.number().int().positive().optional()
 });
 
 const invoiceSchema = z.object({
@@ -205,22 +206,27 @@ export async function handleVerification(req, res, next) {
   try {
     const payload = verificationSchema.parse(req.body ?? {});
     console.info("[mail] verification request", { email: payload.email });
-    const subject = "Vérification de votre compte WoodTech";
+    const subject = "Verification de votre compte WoodTech";
     const greeting = payload.name ? `Bonjour ${payload.name},` : "Bonjour,";
+    const expiresInHours = payload.expiresInHours ?? 24;
 
     const text = `${greeting}
 
-Merci de créer un compte WoodTech. Pour vérifier votre adresse e-mail, entrez ce code dans l'application :
+Merci de creer un compte WoodTech. Pour verifier votre adresse e-mail, ouvrez ce lien :
 
-Code de vérification : ${payload.code}
+${payload.verificationUrl}
 
-Ce code expirera sous peu. Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer ce message.`;
+Ce lien expirera dans ${expiresInHours} heures. Si vous n'etes pas a l'origine de cette demande, vous pouvez ignorer ce message.`;
 
     const html = `
       <p>${greeting}</p>
-      <p>Merci de créer un compte WoodTech. Pour vérifier votre adresse e-mail, entrez ce code dans l'application :</p>
-      <p style="font-size:20px;font-weight:bold;letter-spacing:4px;margin:16px 0;">${payload.code}</p>
-      <p>Ce code expirera sous peu. Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer ce message.</p>
+      <p>Merci de creer un compte WoodTech. Pour verifier votre adresse e-mail, cliquez sur le bouton ci-dessous :</p>
+      <p style="margin:24px 0;">
+        <a href="${payload.verificationUrl}" style="display:inline-block;background:#c08457;color:#0f172a;font-weight:700;text-decoration:none;padding:12px 18px;border-radius:10px;">Verifier mon compte</a>
+      </p>
+      <p>Ou copiez ce lien dans votre navigateur :</p>
+      <p><a href="${payload.verificationUrl}">${payload.verificationUrl}</a></p>
+      <p>Ce lien expirera dans ${expiresInHours} heures. Si vous n'etes pas a l'origine de cette demande, vous pouvez ignorer ce message.</p>
     `;
 
     await sendMail({

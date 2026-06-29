@@ -11,6 +11,7 @@ const ContactPage = lazy(() => import("../pages/Contact"));
 const AssistantPage = lazy(() => import("../pages/Assistant"));
 const LoginPage = lazy(() => import("../pages/Login"));
 const RegisterPage = lazy(() => import("../pages/Register"));
+const VerifyEmailPage = lazy(() => import("../pages/VerifyEmail"));
 const AdminApp = lazy(() => import("../admin/AppAdmin"));
 
 // Le router regroupe la navigation publique et la zone admin (chargement lazy pour optimiser le bundle).
@@ -27,7 +28,8 @@ export const router = createBrowserRouter([
       { path: "contact", element: <ContactPage /> },
       { path: "assistant", element: <AssistantPage /> },
       { path: "connexion", element: <LoginPage /> },
-      { path: "inscription", element: <RegisterPage /> }
+      { path: "inscription", element: <RegisterPage /> },
+      { path: "verify-email", element: <VerifyEmailPage /> }
     ]
   },
   {

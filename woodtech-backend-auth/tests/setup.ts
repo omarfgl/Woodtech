@@ -15,6 +15,7 @@ process.env.COOKIE_SECURE = "false";
 process.env.RATE_LIMIT_WINDOW_MS = process.env.RATE_LIMIT_WINDOW_MS ?? "60000";
 process.env.RATE_LIMIT_MAX = process.env.RATE_LIMIT_MAX ?? "100";
 process.env.RATE_LIMIT_SENSITIVE_MAX = process.env.RATE_LIMIT_SENSITIVE_MAX ?? "100";
+process.env.FRONTEND_URL = process.env.FRONTEND_URL ?? "http://localhost:5173";
 process.env.MONGODB_URI =
   process.env.MONGODB_URI ?? "mongodb://127.0.0.1:27017/woodtech-auth-test";
 

@@ -119,8 +119,8 @@ export const AuthApi = {
     api.post<ApiResponse<AuthSessionPayload>>("/auth/login", payload),
   register: (payload: RegisterRequest) =>
     api.post<ApiResponse<AuthRegisterResult>>("/auth/register", payload),
-  verifyEmail: (email: string, code: string) =>
-    api.post<ApiResponse<AuthSessionPayload>>("/auth/verify-email", { email, code }),
+  verifyEmail: (email: string, token: string) =>
+    api.post<ApiResponse<AuthSessionPayload>>("/auth/verify-email", { email, token }),
   refresh: (refreshToken: string) =>
     api.post<ApiResponse<AuthTokens>>("/auth/refresh", { refreshToken }),
   logout: (refreshToken?: string) =>

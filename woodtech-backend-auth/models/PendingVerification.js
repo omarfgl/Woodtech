@@ -6,7 +6,7 @@ const pendingVerificationSchema = new mongoose.Schema(
     password: { type: String, required: true },
     firstName: { type: String, trim: true },
     lastName: { type: String, trim: true },
-    code: { type: String, required: true },
+    tokenHash: { type: String, required: true },
     expiresAt: { type: Date, required: true, index: { expires: 0 } },
   },
   {

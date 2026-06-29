@@ -27,7 +27,7 @@ type AuthContextValue = {
   status: "idle" | "loading" | "authenticated";
   login: (credentials: AuthCredentials) => Promise<void>;
   register: (payload: RegisterPayload) => Promise<{ status: "pending_verification"; email: string }>;
-  verifyEmail: (email: string, code: string) => Promise<void>;
+  verifyEmail: (email: string, token: string) => Promise<void>;
   logout: () => Promise<void>;
 };
 
@@ -195,10 +195,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const verifyEmail = useCallback(
-    async (email: string, code: string) => {
+    async (email: string, token: string) => {
       setStatus("loading");
       try {
-        const response = await AuthApi.verifyEmail(email, code);
+        const response = await AuthApi.verifyEmail(email, token);
         if (!response.data.success) {
           throw new Error(response.data.error?.message ?? "Verification failed");
         }

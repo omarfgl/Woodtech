@@ -267,12 +267,25 @@ const fr = {
     "Impossible de creer votre compte pour le moment.",
   "register.form.submitLoading": "Creation...",
   "register.form.submit": "Creer mon compte",
+  "register.verification.title": "Email de verification envoye",
+  "register.verification.message":
+    "Nous avons envoye un lien de verification a {email}. Ouvrez ce lien pour activer votre compte.",
   "register.loginPrompt": "Deja inscrit ?",
   "register.loginLink": "Se connecter",
   "register.validation.name": "Merci d'indiquer un nom complet.",
   "register.validation.email": "Adresse e-mail invalide.",
   "register.validation.password": "Mot de passe trop court (8 caracteres).",
   "register.validation.confirm": "Les mots de passe ne correspondent pas.",
+  "verifyEmail.title": "Verification email",
+  "verifyEmail.checking": "Verification de votre compte...",
+  "verifyEmail.successTitle": "Compte active",
+  "verifyEmail.successMessage":
+    "Votre adresse e-mail est verifiee. Vous etes maintenant connecte.",
+  "verifyEmail.errorTitle": "Lien invalide",
+  "verifyEmail.errorMessage":
+    "Ce lien de verification est invalide ou expire. Creez un compte pour recevoir un nouveau lien.",
+  "verifyEmail.home": "Retour a l'accueil",
+  "verifyEmail.register": "Creer un compte",
   "auth.required": "Vous devez etre connecté pour utiliser cette fonctionnalité."
 } as const;
 
@@ -543,12 +556,25 @@ const en: Record<TranslationKey, string> = {
     "Unable to create your account right now.",
   "register.form.submitLoading": "Creating...",
   "register.form.submit": "Create my account",
+  "register.verification.title": "Verification email sent",
+  "register.verification.message":
+    "We sent a verification link to {email}. Open that link to activate your account.",
   "register.loginPrompt": "Already registered?",
   "register.loginLink": "Sign in",
   "register.validation.name": "Please provide a full name.",
   "register.validation.email": "Invalid email address.",
   "register.validation.password": "Password too short (8 characters).",
   "register.validation.confirm": "Passwords do not match.",
+  "verifyEmail.title": "Email verification",
+  "verifyEmail.checking": "Verifying your account...",
+  "verifyEmail.successTitle": "Account activated",
+  "verifyEmail.successMessage":
+    "Your email address is verified. You are now signed in.",
+  "verifyEmail.errorTitle": "Invalid link",
+  "verifyEmail.errorMessage":
+    "This verification link is invalid or expired. Create an account to receive a new link.",
+  "verifyEmail.home": "Back to home",
+  "verifyEmail.register": "Create an account",
   "auth.required": "You must be logged in to use this feature."
 };
 

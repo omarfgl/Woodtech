@@ -39,7 +39,8 @@ const envSchema = z.object({
   RATE_LIMIT_WINDOW_MS: z.coerce.number().default(60000),
   RATE_LIMIT_MAX: z.coerce.number().default(100),
   RATE_LIMIT_SENSITIVE_MAX: z.coerce.number().default(5),
-  MAIL_SERVICE_URL: z.string().url().default("http://localhost:4600")
+  MAIL_SERVICE_URL: z.string().url().default("http://localhost:4600"),
+  FRONTEND_URL: z.string().url().default("http://localhost:5173")
 });
 
 let env: z.infer<typeof envSchema>;
@@ -80,7 +81,8 @@ const config = {
     sensitiveMax: env.RATE_LIMIT_SENSITIVE_MAX
   },
   services: {
-    mailServiceUrl: env.MAIL_SERVICE_URL
+    mailServiceUrl: env.MAIL_SERVICE_URL,
+    frontendUrl: env.FRONTEND_URL
   }
 };
 

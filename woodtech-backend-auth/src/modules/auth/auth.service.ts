@@ -73,9 +73,20 @@ const revokeUserTokens = async (userId: string) => {
   await RefreshToken.updateMany({ user: new Types.ObjectId(userId) }, { revoked: true });
 };
 
-const createVerificationCode = () => crypto.randomInt(100000, 999999).toString();
+const createVerificationToken = () => crypto.randomBytes(32).toString("hex");
 
-const sendVerificationEmail = async (email: string, firstName: string | undefined, code: string) => {
+const buildVerificationUrl = (email: string, token: string) => {
+  const url = new URL("/verify-email", config.services.frontendUrl);
+  url.searchParams.set("email", email);
+  url.searchParams.set("token", token);
+  return url.toString();
+};
+
+const sendVerificationEmail = async (
+  email: string,
+  firstName: string | undefined,
+  verificationUrl: string
+) => {
   logger.info({ email }, "Sending verification email");
   try {
     await axios.post(
@@ -83,7 +94,8 @@ const sendVerificationEmail = async (email: string, firstName: string | undefine
       {
         email,
         name: firstName,
-        code
+        verificationUrl,
+        expiresInHours: 24
       },
       { timeout: 10000 }
     );
@@ -96,7 +108,7 @@ const sendVerificationEmail = async (email: string, firstName: string | undefine
 
 export const AuthService = {
   async register(input: RegisterInput) {
-    const email = input.email.toLowerCase();
+    const email = input.email.trim().toLowerCase();
     const existing = await User.findOne({ email });
     if (existing) {
       if (existing.verifiedAt) {
@@ -109,7 +121,7 @@ export const AuthService = {
     await PendingVerification.deleteOne({ email });
 
     const passwordHash = await bcrypt.hash(input.password, BCRYPT_SALT_ROUNDS);
-    const verificationCode = createVerificationCode();
+    const verificationToken = createVerificationToken();
     const verificationExpiresAt = new Date(Date.now() + VERIFICATION_TTL_MS);
 
     await PendingVerification.findOneAndUpdate(
@@ -119,19 +131,19 @@ export const AuthService = {
         passwordHash,
         firstName: input.firstName,
         lastName: input.lastName,
-        code: verificationCode,
+        tokenHash: hashToken(verificationToken),
         expiresAt: verificationExpiresAt
       },
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );
 
-    await sendVerificationEmail(email, input.firstName, verificationCode);
+    await sendVerificationEmail(email, input.firstName, buildVerificationUrl(email, verificationToken));
 
     return { status: "pending_verification", email };
   },
 
   async login(input: LoginInput) {
-    const email = input.email.toLowerCase();
+    const email = input.email.trim().toLowerCase();
     const user = await User.findOne({ email });
     const pending = await PendingVerification.findOne({ email });
     if (pending) {
@@ -229,7 +241,7 @@ export const AuthService = {
   },
 
   async verifyEmail(input: VerifyEmailInput) {
-    const email = input.email.toLowerCase();
+    const email = input.email.trim().toLowerCase();
 
     const alreadyUser = await User.findOne({ email });
     const pending = await PendingVerification.findOne({ email });
@@ -245,10 +257,10 @@ export const AuthService = {
       const now = Date.now();
       if (pending.expiresAt.getTime() < now) {
         await PendingVerification.deleteOne({ _id: pending._id });
-        throw new AuthenticationError("Verification code expired");
+        throw new AuthenticationError("Verification link expired");
       }
-      if (pending.code !== input.code) {
-        throw new AuthenticationError("Invalid verification code");
+      if (pending.tokenHash !== hashToken(input.token)) {
+        throw new AuthenticationError("Invalid verification link");
       }
 
       alreadyUser.verifiedAt = new Date();
@@ -268,10 +280,10 @@ export const AuthService = {
     const now = Date.now();
     if (pending.expiresAt.getTime() < now) {
       await PendingVerification.deleteOne({ _id: pending._id });
-      throw new AuthenticationError("Verification code expired");
+      throw new AuthenticationError("Verification link expired");
     }
-    if (pending.code !== input.code) {
-      throw new AuthenticationError("Invalid verification code");
+    if (pending.tokenHash !== hashToken(input.token)) {
+      throw new AuthenticationError("Invalid verification link");
     }
 
     let user: UserDocument;
